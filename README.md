@@ -8,17 +8,19 @@ The current process to write Subgraph documentation is a manual and tedious proc
 ## How
 ### Business logic
 Rust
-* Parse `schema.graphql` file for entities
-* Generate Markdown-based documentation from user input and parsed entities
+* If URL given, download `schema.graphql` from URL
+* Else
+    * Parse `schema.graphql` contents for entities
+    * Generate documentation (Markdown files) from user input and parsed entities
 
 ### UI
 React
 * As a user I can input the URL or raw text for a `schema.graphql`
-* As a user I can download the Markdown-based documentation generated from the `schema.graphql` input
+* As a user I can download the documentation (Markdown files) generated from my `schema.graphql` input
 
 ### Deployment
-* As an app I can rate limit myself against overuse from an IP address
-* As an app I can monitor the status code, IP, Lat, Long, and User Agent of users submitting requests to me
+* Rate limit against overuse from an IP address
+* Log status code, IP, Lat, Long, and User Agent of users submitting requests (for 30 days)
 
 ## Who
 * Paka
