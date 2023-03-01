@@ -24,7 +24,8 @@ React
 
 ## Who
 * Paka
-* Dylan?
+* Dylan
+* Don
 
 ## When
 Delivery by end of August 2023
