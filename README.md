@@ -2,6 +2,12 @@
 ## What 
 Web app that let's a user generate Markdown-based Subgraph documentation from a GraphQL schema
 
+
+![image](https://user-images.githubusercontent.com/43630382/222188985-c592caa9-797e-4caf-8cfa-43babdf7ffa4.png)
+
+*Figure 1. Prototype UI*
+
+
 ## Why
 The current process to write Subgraph documentation is a manual and tedious process, which explains why many development teams don't bother to document their Sugraphs. This is a non-ideal situation for dApp developers looking to leverage Subgraphs quickly, without spending too much time manually reading various GraphQL schemas. This tool automates the schema-to-documentation process, unblocking an important bottleneck in dApp development. 
 
