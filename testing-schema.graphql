@@ -1,0 +1,193 @@
+"""
+Projects are the member type which the Everest list is curated for
+"""
+type Project @entity {
+  "Required ID"
+  id: ID!
+  # From IPFS / off chain storage
+  # None of these are required, since first the event DIDOwnerChanged creates the project
+  # Then DIDAttributeChanged gets emitted, where we will see theses values filled in
+  "The IPFS hash where all off-chain data is stored"
+  ipfsHash: String
+  "Project name"
+  name: String
+  "Project description"
+  description: String
+  "Project website"
+  website: String
+  "Project twitter handle"
+  twitter: String
+  "Project github URL"
+  github: String
+  "Project avatar"
+  avatar: String
+  "Project image"
+  image: String
+  "List of project categories"
+  categories: [Category!]!
+  "True if a representative of the company owns this project"
+  isRepresentative: Boolean!
+  "Time it was created at on the blockchain"
+  createdAt: Int!
+  "Time it was updated at on the blockchain"
+  updatedAt: Int!
+
+  # From smart contracts directly
+  "Owner of this project"
+  owner: User
+  "Current challenge against this project"
+  currentChallenge: Challenge
+  "Past challenges agaisnt this project"
+  pastChallenges: [Challenge!]
+  "Challenges this project has created against other projects"
+  createdChallenges: [Challenge!]
+  "Time this project joined Everest"
+  membershipStartTime: Int! # reputation = now - membershipStartTime.
+  "List of all delegates of this project"
+  delegates: [User!]
+  "Total vote count"
+  totalVotes: Int!
+  "All votes a project has made"
+  votes: [Vote!] @derivedFrom(field: "voter")
+}
+
+"""
+Project Categories
+"""
+type Category @entity {
+  "The ID is a lowercased name"
+  id: ID!
+  "The category description"
+  description: String!
+  "The IPFS hash of the category image"
+  imageHash: String!
+  "The Url of the category image"
+  imageUrl: String!
+  "The name of the category, case insensitive"
+  name: String!
+  "The name used for the front end"
+  slug: String!
+  "Projects with this category designation"
+  projects: [Project!]!
+  "The subcategories of this Category"
+  subcategories: [Category!] @derivedFrom(field: "parentCategory")
+  "Parent category of this category. Null if it is a top level category"
+  parentCategory: Category
+  "Time it was created in the Subgraph"
+  createdAt: Int!
+  "Number of projects in this category and all of its subcategories"
+  projectCount: Int!
+}
+
+type Challenge @entity {
+  "Challenge ID"
+  id: ID!
+  "IPFS hash where the description is stored"
+  ipfsHash: String!
+  "Challenge description"
+  description: String
+  "End time of the challenge"
+  endTime: Int!
+  "Votes yes to a challenge for removal of the project (in weight)"
+  removeVotes: Int!
+  "Voting no to a challenge for keeping the project  (in weight)"
+  keepVotes: Int!
+  "Project that is being challenged"
+  project: Project # Can be null since projects get deleted upon challenge
+  "Owner of the challenge, which is a project"
+  owner: Project # Can be null since projects get deleted upon challenge
+  "List of all created votes"
+  votes: [Vote!] @derivedFrom(field: "challenge")
+  # This is when the challenge is resolved, which is different from end time
+  "True if the challenge has been resolved"
+  resolved: Boolean!
+  "Time challenge was created on the blockchain"
+  createdAt: Int!
+}
+
+"""
+Everest holds the global variables relevant to the dapp
+"""
+type Everest @entity {
+  id: ID!
+  "Owner of the Everest contract"
+  owner: Bytes!
+  "Approved token for Everest fees"
+  approvedToken: Bytes!
+  "Voting period for challenges"
+  votingPeriodDuration: Int!
+  "Challege deposit in DAI"
+  challengeDeposit: BigInt!
+  "Fee to apply to be in Everest"
+  applicationFee: BigInt!
+  "Address of everest"
+  everestAddress: Bytes!
+  "Address of the reserve bank"
+  reserveBankAddress: Bytes!
+  "Balance of the reserve bank (DAI)"
+  reserveBankBalance: BigInt!
+  "IPFS hash pointing to the categories"
+  categories: Bytes!
+  "IPFS hash pointing to the charter"
+  charter: Bytes!
+  "Time it was created on the blockchain"
+  createdAt: Int!
+  "Total count of projects created on Everest"
+  projectCount: Int!
+  "Projects that are currently in control by a representative"
+  claimedProjects: Int!
+  "Projects that are currently under challenge"
+  challengedProjects: Int!
+  "The amount of categories in Everest"
+  categoriesCount: Int!
+}
+
+"""
+A challenge vote
+"""
+type Vote @entity {
+  "Concatenation of challenge ID and voter address"
+  id: ID!
+  "Project that voted on the challenge"
+  voter: Project
+  "Challenge the vote is for"
+  challenge: Challenge!
+  "Vote choice"
+  choice: Choice!
+  "Vote weight based on project reputation"
+  weight: Int!
+  "Time that vote was created on the blockchain"
+  createdAt: Int!
+}
+
+"""
+The Vote choice enum
+"""
+enum Choice {
+  Null
+  Yes
+  No
+}
+
+"""
+A User of the Everest Dapp. A User is the owner or delegate of Projects. User info
+is obtained from 3box
+"""
+type User @entity {
+  "User ethereum address"
+  id: ID!
+  "Projects the user owns"
+  projects: [Project!] @derivedFrom(field: "owner")
+  "Projects the user is a delegate of"
+  delegatorProjects: [Project!] @derivedFrom(field: "delegates")
+  "The time the user was created in the Subgraph (not the blockchain)"
+  createdAt: Int!
+}
+
+type _Schema_
+  @fulltext(
+    name: "projectSearch"
+    language: en
+    algorithm: rank
+    include: [{ entity: "Project", fields: [{ name: "name" }, { name: "description" }] }]
+  )
