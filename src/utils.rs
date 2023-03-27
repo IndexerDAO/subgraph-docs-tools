@@ -2,6 +2,9 @@ use std::collections::HashMap;
 use std::string::String;
 use serde::Deserialize;
 
+use graphql_parser::query::Type;
+
+
 #[allow(non_snake_case)]
 #[derive(Debug, Deserialize)]
 pub struct SubgraphManifest {
@@ -50,7 +53,7 @@ pub struct Source {
 
 #[allow(non_snake_case)]
 #[derive(Debug)]
-pub struct DefintionResult<'a> {
+pub struct DefinitionResult<'a> {
     pub name: String,
     pub description: Option<String>,
     pub fields: Vec<DefinitionField<'a>>,
