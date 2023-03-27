@@ -1,5 +1,5 @@
 mod utils;
-use crate::utils::{DefinitionResult, DefinitionField, DefinitionValue};
+use crate::utils::{DefinitionResult, DefinitionField, DefinitionValue, generate_entities_page};
 use graphql_parser::schema::parse_schema;
 use graphql_parser::schema::TypeDefinition::{Scalar, Object, Interface, Union, Enum, InputObject};
 use graphql_parser::schema::Definition::{SchemaDefinition, TypeDefinition, TypeExtension, DirectiveDefinition};
@@ -13,7 +13,7 @@ fn main() -> Result<(), Box<dyn Error>>  {
     .expect("Should have been able to read the file");
 
     // Parse schema
-    let ast = parse_schema::<String>(&contents)?.to_owned();
+    let ast = parse_schema::<String>(&contents)?.into_static();
 
     // Traverse type definition options with match
     let mut results: Vec<DefinitionResult> = Vec::new();
@@ -114,11 +114,17 @@ fn main() -> Result<(), Box<dyn Error>>  {
         }
     }
 
+
+    // Generate markdown from parsed entities
+    generate_entities_page(&results)?;
+
+    println!("Subgraph documentation is ready");
+
     // Print results
-    for res in results {
-        println!("{:?}", res);
-        println!("");
-    }
+    // for res in results {
+    //     println!("{:?}", res);
+    //     println!("");
+    // }
 
     Ok(())
 }
