@@ -120,11 +120,8 @@ fn main() -> Result<(), Box<dyn Error>>  {
 
     println!("Subgraph documentation is ready");
 
-    // Print results
-    // for res in results {
-    //     println!("{:?}", res);
-    //     println!("");
-    // }
+    // Note to self:
+    // Refine code to delete _Schema_ from entities.md
 
     Ok(())
 }
