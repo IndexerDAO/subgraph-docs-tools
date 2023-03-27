@@ -74,10 +74,34 @@ fn main() -> Result<(), Box<dyn Error>>  {
                     }
                 );
             },
-            TypeDefinition(Scalar(s)) => {
-                println!("Coming soon");
-            },
             TypeDefinition(Interface(i)) => {
+                let mut tmp_fields: Vec<DefinitionField> = Vec::new();
+                for field in &i.fields {
+                    tmp_fields.push(
+                        DefinitionField {
+                            name: field.name.clone(),
+                            description: field.description.clone(),
+                            field_type: field.field_type.clone(),
+                        }
+                    );
+                }
+                let mut tmp_values: Vec<DefinitionValue> = Vec::new();
+                tmp_values.push(
+                    DefinitionValue {
+                        name: "None".to_string(),
+                        description: None,
+                    }
+                );
+                results.push(
+                    DefinitionResult {
+                        name: i.name.clone(),
+                        description: i.description.clone(),
+                        fields: tmp_fields,
+                        values: tmp_values,
+                    }
+                );
+            },
+            TypeDefinition(Scalar(s)) => {
                 println!("Coming soon");
             },
             TypeDefinition(Union(u)) => {
