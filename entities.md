@@ -6,7 +6,6 @@
 * [Vote](#vote)
 * [Choice](#choice)
 * [User](#user)
-* [_Schema_](#_schema_)
 
 ## Project
 Projects are the member type which the Everest list is curated for
@@ -139,13 +138,6 @@ is obtained from 3box
 | projects | [Project!] | Projects the user owns | 
 | delegatorProjects | [Project!] | Projects the user is a delegate of | 
 | createdAt | Int! | The time the user was created in the Subgraph (not the blockchain) | 
-
-
-
-## _Schema_
-
-| Field/Value | Type | Description | 
-| --- | --- | --- | 
 
 
 

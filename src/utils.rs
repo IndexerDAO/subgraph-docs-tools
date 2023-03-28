@@ -1,8 +1,14 @@
 use std::string::String;
 use std::fs::File;
 use std::io::Write;
+use std::error::Error;
 
+
+use graphql_parser::schema::TypeDefinition::{Scalar, Object, Interface, Union, Enum, InputObject};
+use graphql_parser::schema::Definition::{SchemaDefinition, TypeDefinition, TypeExtension, DirectiveDefinition};
 use graphql_parser::query::Type;
+use graphql_parser::schema::Document;
+
 
 #[allow(non_snake_case)]
 #[derive(Debug)]
@@ -83,4 +89,109 @@ pub fn generate_entities_page(schema_definitions: &Vec<DefinitionResult<'static>
     let mut output = File::create(path)?;
     write!(output, "{}", &markdown)?;
     Ok(())
+}
+
+pub fn get_ast_definitions<'a>(ast: &Document<'static, String>) -> Result<Vec<DefinitionResult<'static>>, Box<dyn Error>> {
+    let mut results: Vec<DefinitionResult> = Vec::new();
+    for definition in &ast.definitions {
+        match definition {
+            TypeDefinition(Object(o)) => {
+                let mut tmp_fields: Vec<DefinitionField> = Vec::new();
+                for field in &o.fields {
+                    tmp_fields.push(
+                        DefinitionField {
+                            name: field.name.clone(),
+                            description: field.description.clone(),
+                            field_type: field.field_type.clone(),
+                        }
+                    );
+                }
+                let mut tmp_values: Vec<DefinitionValue> = Vec::new();
+                tmp_values.push(
+                    DefinitionValue {
+                        name: "None".to_string(),
+                        description: None,
+                    }
+                );
+                results.push(
+                    DefinitionResult {
+                        name: o.name.clone(),
+                        description: o.description.clone(),
+                        fields: tmp_fields,
+                        values: tmp_values,
+                    }
+                );
+            },
+            TypeDefinition(Enum(e)) => {
+                let mut tmp_values: Vec<DefinitionValue> = Vec::new();
+                for value in &e.values {
+                    tmp_values.push(
+                        DefinitionValue {
+                            name: value.name.clone(),
+                            description: value.description.clone(),
+                        }
+                    );
+                }
+                let mut tmp_fields: Vec<DefinitionField> = Vec::new();
+                tmp_fields.push(
+                    DefinitionField {
+                        name: "None".to_string(),
+                        description: None,
+                        field_type: Type::NamedType("None".to_string()),
+                    }
+                );
+                results.push(
+                    DefinitionResult {
+                        name: e.name.clone(),
+                        description: e.description.clone(),
+                        fields: tmp_fields,
+                        values: tmp_values,
+                    }
+                );
+            },
+            // Work on interface next
+            TypeDefinition(Interface(i)) => {
+                let mut tmp_fields: Vec<DefinitionField> = Vec::new();
+                for field in &i.fields {
+                    tmp_fields.push(
+                        DefinitionField {
+                            name: field.name.clone(),
+                            description: field.description.clone(),
+                            field_type: field.field_type.clone(),
+                        }
+                    );
+                }
+                let mut tmp_values: Vec<DefinitionValue> = Vec::new();
+                tmp_values.push(
+                    DefinitionValue {
+                        name: "None".to_string(),
+                        description: None,
+                    }
+                );
+                results.push(
+                    DefinitionResult {
+                        name: i.name.clone(),
+                        description: i.description.clone(),
+                        fields: tmp_fields,
+                        values: tmp_values,
+                    }
+                );
+            },
+            TypeDefinition(Scalar(s)) => {
+                println!("Scalar Coming soon");
+            },
+            TypeDefinition(Union(u)) => {
+                println!("Union Coming soon");
+            },
+            TypeDefinition(InputObject(io)) => {
+                println!("InputObject Coming soon");
+            },
+            SchemaDefinition(_) | TypeExtension(_) | DirectiveDefinition(_) => todo!(),
+        }
+    }
+    
+    // Code to delete entry equal to _Schema_ from results
+    results.retain(|r| *r.name != "_Schema_".to_string());
+
+    Ok(results)
 }
